@@ -1,0 +1,89 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch="http://mds.it/anagrafiche/sdk/registries"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://mds.it/anagrafiche/sdk/registries"
+                  targetNamespace="http://mds.it/anagrafiche/sdk/registries"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ ">
+    <wsdl:types>
+        <xs:schema xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                   elementFormDefault="qualified" targetNamespace="http://mds.it/anagrafiche/sdk/registries">
+            <xs:element name="getRegistriesRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="name" type="xs:string"/>
+                        <xs:element default="19700108_000000" name="downloadDate" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getRegistriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="filename" type="xs:string"/>
+                        <xs:element name="mimeType" type="xs:string"/>
+                        <xs:element name="lastUpdate" type="xs:dateTime"/>
+                        <xs:element name="nextUpdate" type="xs:dateTime"/>
+                        <xs:element name="stream" type="xs:base64Binary" xmime:expectedContentTypes="application/zip"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getRegistriesNameListRequest">
+                <xs:complexType/>
+            </xs:element>
+            <xs:element name="getRegistriesNameListResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="500" name="registriesList" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="getRegistriesNameListRequest">
+        <wsdl:part element="tns:getRegistriesNameListRequest" name="getRegistriesNameListRequest"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getRegistriesNameListResponse">
+        <wsdl:part element="tns:getRegistriesNameListResponse" name="getRegistriesNameListResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getRegistriesRequest">
+        <wsdl:part element="tns:getRegistriesRequest" name="getRegistriesRequest"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getRegistriesResponse">
+        <wsdl:part element="tns:getRegistriesResponse" name="getRegistriesResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="registriesPort">
+        <wsdl:operation name="getRegistriesNameList">
+            <wsdl:input message="tns:getRegistriesNameListRequest" name="getRegistriesNameListRequest"></wsdl:input>
+            <wsdl:output message="tns:getRegistriesNameListResponse" name="getRegistriesNameListResponse"></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getRegistries">
+            <wsdl:input message="tns:getRegistriesRequest" name="getRegistriesRequest"></wsdl:input>
+            <wsdl:output message="tns:getRegistriesResponse" name="getRegistriesResponse"></wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="registriesPortSoap11" type="tns:registriesPort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="getRegistriesNameList">
+            <soap:operation soapAction=""/>
+            <wsdl:input name="getRegistriesNameListRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getRegistriesNameListResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getRegistries">
+            <soap:operation soapAction=""/>
+            <wsdl:input name="getRegistriesRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getRegistriesResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="registriesPortService">
+        <wsdl:port binding="tns:registriesPortSoap11" name="registriesPortSoap11">
+            <soap:address location="http://localhost:8080/soap/v1"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
