@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+
 package it.mds.sdk.anagrafiche.client.utility;
 
 import it.mds.sdk.anagrafiche.client.entities.Datum;
