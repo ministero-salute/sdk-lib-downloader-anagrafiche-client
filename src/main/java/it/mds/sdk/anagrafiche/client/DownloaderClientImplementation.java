@@ -38,7 +38,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- *
  * @author Accenture
  * Orritos, Abis, Mattei, Pittarelli
  */
@@ -71,15 +70,15 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
 
     private static final String APP_ID_REGISTRYDOWNLOADER_CLIENT = "APP_ID_REGISTRYDOWNLOADER_CLIENT";
 
-	private static final String SECURITY_HEADER =
+    private static final String SECURITY_HEADER =
             "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n" +
-            "    <wsse:UsernameToken wsu:Id=\"UsernameToken-4\">\n" +
-            "        <wsse:Username>WSSE_USERNAME_PLACEHOLDER</wsse:Username>\n" +
-            "        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">WSSE_PASSWORD_PLACEHOLDER</wsse:Password>\n" +
-            "        <wsse:Nonce EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\">ucYNK1tD4mFDvV6KLBURZg==</wsse:Nonce>\n" +
-            "        <wsu:Created>WSU_TIME_PLACEHOLDER</wsu:Created>\n" +
-            "    </wsse:UsernameToken>\n" +
-            "</wsse:Security>\n";
+                    "    <wsse:UsernameToken wsu:Id=\"UsernameToken-4\">\n" +
+                    "        <wsse:Username>WSSE_USERNAME_PLACEHOLDER</wsse:Username>\n" +
+                    "        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">WSSE_PASSWORD_PLACEHOLDER</wsse:Password>\n" +
+                    "        <wsse:Nonce EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\">ucYNK1tD4mFDvV6KLBURZg==</wsse:Nonce>\n" +
+                    "        <wsu:Created>WSU_TIME_PLACEHOLDER</wsu:Created>\n" +
+                    "    </wsse:UsernameToken>\n" +
+                    "</wsse:Security>\n";
 
     /**
      * Nome dell'header di autenticazione: definisce il ruolo per accedere al registry
@@ -101,32 +100,28 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
     private String wsseUsername;
     private String wssePassword;
 
-    /**
-     * Parte dell'implementazione del pattern Singleton
-     */
-    private static final DownloaderClient instance = new DownloaderClientImplementation();
 
     /**
      * Costruttore private per l'implementazione del pattern Singleton
      */
-    private DownloaderClientImplementation() {
+    public DownloaderClientImplementation(Properties conf) {
         this.endpointSoap = "https://nsis.sanita.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"; // Esercizio URL esterna
         this.wsseUsername = "";
         this.wssePassword = "";
 
+        if (!conf.isEmpty()) {
+            this.endpointSoap = conf.getProperty("client.host");
+            this.wsseUsername = conf.getProperty("client.username");
+            this.wssePassword = conf.getProperty("client.password");
+        }
+
         this.callToServerDates = new Hashtable<>();
     }
 
-    /**
-     * Restituisce l'istanza del DownloaderClient.
-     * @return Un'istanza del DownloaderClient
-     */
-    public static DownloaderClient instance() {
-        return instance;
-    }
 
     /**
      * Metodo che ritorna la lista delle anagrafiche
+     *
      * @return Lista dei nomi delle anagrafiche
      */
     @Override
@@ -141,29 +136,29 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
         try {
 
             return getWebServiceTemplate().sendAndReceive(getEndpointSoap(),
-                message -> {
-                    //Settiamo la request
+                    message -> {
+                        //Settiamo la request
 
-                    //Settiamo la request nella SOAP
-                    QName headerApplicationName = new QName(NAMESPACE_URI, SECURITY_REGISTRY_APPLICATION_ID);
-                    SoapHeader soapHeader1 = ((SoapMessage) message).getSoapHeader();
-                    soapHeader1.addHeaderElement(headerApplicationName).setText(securityFields.get(SECURITY_REGISTRY_APPLICATION_ID));
-                    //---------------------------------
-                    final String updatedSecurityHeader = updateWSSE(SECURITY_HEADER);
+                        //Settiamo la request nella SOAP
+                        QName headerApplicationName = new QName(NAMESPACE_URI, SECURITY_REGISTRY_APPLICATION_ID);
+                        SoapHeader soapHeader1 = ((SoapMessage) message).getSoapHeader();
+                        soapHeader1.addHeaderElement(headerApplicationName).setText(securityFields.get(SECURITY_REGISTRY_APPLICATION_ID));
+                        //---------------------------------
+                        final String updatedSecurityHeader = updateWSSE(SECURITY_HEADER);
 
-                    StringSource headerSource = new StringSource(updatedSecurityHeader);
-                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
-                    transformer.transform(headerSource, soapHeader1.getResult());
-                    //---------------------------------
-                    GetRegistriesNameListRequest request = new GetRegistriesNameListRequest();
-                    marshaller.setContextPath(CONTEXT_PATH);
-                    MarshallingUtils.marshal(marshaller, request, message);
-                },
-                message -> {
-                    unmarshaller.setContextPath(CONTEXT_PATH);
-                    GetRegistriesNameListResponse response = (GetRegistriesNameListResponse) MarshallingUtils.unmarshal(unmarshaller, message);
-                    return response.getRegistriesList();
-                });
+                        StringSource headerSource = new StringSource(updatedSecurityHeader);
+                        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                        transformer.transform(headerSource, soapHeader1.getResult());
+                        //---------------------------------
+                        GetRegistriesNameListRequest request = new GetRegistriesNameListRequest();
+                        marshaller.setContextPath(CONTEXT_PATH);
+                        MarshallingUtils.marshal(marshaller, request, message);
+                    },
+                    message -> {
+                        unmarshaller.setContextPath(CONTEXT_PATH);
+                        GetRegistriesNameListResponse response = (GetRegistriesNameListResponse) MarshallingUtils.unmarshal(unmarshaller, message);
+                        return response.getRegistriesList();
+                    });
 
         } catch (Exception exc) {
             logger.error("[getRegistries] Calling " + getEndpointSoap() + ": " + exc.getMessage());
@@ -193,11 +188,10 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      * utilizzando i seguenti valori di default per i parametri di sicurezza:
      * - "registryRole" = "TEST"
      * - "registryApplicationId" = "APP_ID_REGISTRYDOWNLOADER_CLIENT"
-     *
+     * <p>
      * Il download di questa anagrafica non verrà forzato.
      *
      * @param registryName Il nome dell'anagrafica che si vuole ricevere.
-     *
      * @return Una nuova versione dell'anagrafica,
      * oppure un'anagrafica senza dati perchè è ancora valida la precedente versione scaricata dal client.
      */
@@ -220,14 +214,13 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      * utilizzando i seguenti valori di default per i parametri di sicurezza:
      * - "registryRole" = "TEST"
      * - "registryApplicationId" = "APP_ID_REGISTRYDOWNLOADER_CLIENT"
-     *
+     * <p>
      * Il download di questa anagrafica non verrà forzato.
      *
      * @param registryName Il nome dell'anagrafica che si vuole ricevere.
-     * @param force Parametro che può pilotare il download forzato dell'anagrafica.
-     *              Se 'true' l'anagrafica verrà forzata,
-     *              se 'fals', no.
-     *
+     * @param force        Parametro che può pilotare il download forzato dell'anagrafica.
+     *                     Se 'true' l'anagrafica verrà forzata,
+     *                     se 'fals', no.
      * @return Una nuova versione dell'anagrafica,
      * oppure un'anagrafica senza dati perchè è ancora valida la precedente versione scaricata dal client.
      */
@@ -265,8 +258,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      * Implementazione reale del metodo di retrieve dell'anagrafica
      *
      * @param registryName Nome dell'anagrafica
-     * @param lastUpdate Data e ora di ultimo aggiornamento dell'anagrafica
-     *
+     * @param lastUpdate   Data e ora di ultimo aggiornamento dell'anagrafica
      * @return Un registry popolato con gli opportuni dati dell'anagrafica
      */
     private Registry retrieveRegistry(String registryName, Date lastUpdate, Map<String, String> securityFields) {
@@ -279,7 +271,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
                 message -> {
                     //Settiamo la request nella SOAP
                     QName headerApplicationName = new QName(NAMESPACE_URI, SECURITY_REGISTRY_APPLICATION_ID);
-                    SoapHeader soapHeader1 = ((SoapMessage)message).getSoapHeader();
+                    SoapHeader soapHeader1 = ((SoapMessage) message).getSoapHeader();
                     soapHeader1.addHeaderElement(headerApplicationName).setText(securityFields.get(SECURITY_REGISTRY_APPLICATION_ID));
                     //---------------------------------
                     final String updatedSecurityHeader = updateWSSE(SECURITY_HEADER);
@@ -328,8 +320,8 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
 
             for (int i = 0; i < count; i++) {
                 BodyPart bodyPart = mp.getBodyPart(i);
-                if (   "application/octet-stream".equalsIgnoreCase(bodyPart.getContentType())
-                    || "application/zip".equalsIgnoreCase(bodyPart.getContentType()) ) {
+                if ("application/octet-stream".equalsIgnoreCase(bodyPart.getContentType())
+                        || "application/zip".equalsIgnoreCase(bodyPart.getContentType())) {
 
                     result = bodyPart.getDataHandler();
                     break;
@@ -382,7 +374,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      * Ritorna la request
      *
      * @param registryName nome dell'anagrafica
-     * @param lastUpload data del download richiesto
+     * @param lastUpload   data del download richiesto
      * @return GetRegistriesRequest
      */
     private GetRegistriesRequest getRegistryRequest(String registryName, Date lastUpload) {
@@ -399,23 +391,24 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
 
     /**
      * Instanzia nuova anagrafica e valorizza i dati ricevuti dalla risposta
-     *
+     * <p>
      * cod 200:
-     *      isNew = true: file ricevuto e aggiornato rispetto all'ultimo in possesso dal client.
-     *      valorizza tutti gli attributi della classe Registry
-     *
+     * isNew = true: file ricevuto e aggiornato rispetto all'ultimo in possesso dal client.
+     * valorizza tutti gli attributi della classe Registry
+     * <p>
      * cod 304:
-     *      isNew = false: Il file in possesso del client è ancora valido.
-     *      valorizza solo la data di ultimo e prossimo aggiornamento del file da parte del server
-     *
+     * isNew = false: Il file in possesso del client è ancora valido.
+     * valorizza solo la data di ultimo e prossimo aggiornamento del file da parte del server
+     * <p>
      * Il body della risposta rappresenta sempre un file zip
      *
-     * @param response Response contentenete l'InputStream del file zip contenente anagrafica e i suoi metadata
+     * @param response     Response contentenete l'InputStream del file zip contenente anagrafica e i suoi metadata
      * @param registryName nome dell'anagrafica
      * @return un istanza della classe Registry
      * @throws IOException Exception
      */
-    @SuppressWarnings("java:S5042")  // Sopprime il warning sul getNextEntry(), attaccabile solo con un attacco Man-In-The-Middle
+    @SuppressWarnings("java:S5042")
+    // Sopprime il warning sul getNextEntry(), attaccabile solo con un attacco Man-In-The-Middle
     private Registry registryFromResponse(GetRegistriesResponse response, String registryName) throws IOException {
 
         final Registry result = new Registry();
@@ -453,7 +446,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
                 result.setNew(false);
             }
 
-        } else if(statusCode == HttpStatus.NOT_MODIFIED) {
+        } else if (statusCode == HttpStatus.NOT_MODIFIED) {
 
             // 304 -> anagrafica ancora valida (isNew -> false)
             result.setNew(false);
@@ -465,7 +458,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
     /**
      * Sets dates from the response on the passed registry
      *
-     * @param result Registry passed, to be filled with dates extracted from SOAP response
+     * @param result   Registry passed, to be filled with dates extracted from SOAP response
      * @param response The SOAP response from the remote service
      */
     private void setFileDatesFromResponse(Registry result, GetRegistriesResponse response) {
@@ -475,21 +468,21 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
 
     /**
      * Ritorna:
-     *  - HttpStatus.OK             -> fileName è valorizzato e non è stringa vuota
-     *  - HttpStatus.NOT_MODIFIED   -> fileName è null ma lastUpdate e nextUpdate sono valorizzate
+     * - HttpStatus.OK             -> fileName è valorizzato e non è stringa vuota
+     * - HttpStatus.NOT_MODIFIED   -> fileName è null ma lastUpdate e nextUpdate sono valorizzate
+     *
      * @param response response
      * @return HttpStatus
      */
     private HttpStatus getStatusCodeFromResponse(GetRegistriesResponse response) {
         HttpStatus statusCode;
 
-        if(response.getFilename() != null && !"".equals(response.getFilename().trim())) {
+        if (response.getFilename() != null && !"".equals(response.getFilename().trim())) {
             statusCode = HttpStatus.OK;
-        }
-        else if((response.getFilename() == null || "".equals(response.getFilename().trim())) && (
+        } else if ((response.getFilename() == null || "".equals(response.getFilename().trim())) && (
                 response.getLastUpdate() != null && response.getNextUpdate() != null)) {
             statusCode = HttpStatus.NOT_MODIFIED;
-        }else{
+        } else {
             statusCode = HttpStatus.BAD_REQUEST;
         }
         return statusCode;
@@ -500,14 +493,9 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *
      * @return URL completo dell'endpoint SOAP
      */
-    @Override
     public String getEndpointSoap() {
 
         return this.endpointSoap;
-
-        // return "https://nsis.sanita.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"; // Esercizio URL esterna
-        // return "https://cooperazionecoll.salute.gov.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL pubblica
-        // return "http://10.175.6.34:8130/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL interna
     }
 
     /**
@@ -520,7 +508,6 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *                 <code>client.setEndpointSoap("https://cooperazionecoll.salute.gov.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL pubblica</code><br>
      *                 <code>client.setEndpointSoap("http://10.175.6.34:8130/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL interna</code><br>
      */
-    @Override
     public void setEndpointSoap(String endpoint) {
         this.endpointSoap = endpoint;
     }
@@ -530,7 +517,6 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *
      * @return Stringa con la username
      */
-    @Override
     public String getWsseUsername() {
         return wsseUsername;
     }
@@ -540,7 +526,6 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *
      * @param wsseUsername Stringa con la username
      */
-    @Override
     public void setWsseUsername(String wsseUsername) {
         this.wsseUsername = wsseUsername;
     }
@@ -550,7 +535,6 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *
      * @return Stringa con la password, in chiaro
      */
-    @Override
     public String getWssePassword() {
         return wssePassword;
     }
@@ -560,7 +544,6 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      *
      * @param wssePassword Stringa con la password, in chiaro
      */
-    @Override
     public void setWssePassword(String wssePassword) {
         this.wssePassword = wssePassword;
     }
@@ -574,7 +557,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
     private Date retrieveLastUpdateDate(String registryName) {
 
         Date lastUpdate = this.callToServerDates.get(registryName);
-        if( lastUpdate == null ) {
+        if (lastUpdate == null) {
             lastUpdate = Date.from(Instant.EPOCH);
         }
 
@@ -588,7 +571,7 @@ public class DownloaderClientImplementation extends WebServiceGatewaySupport imp
      * @return Lista con i nomi delle anagrafiche disponibili
      */
     @SuppressWarnings("unused")
-	private List<String> setRegistriesList(InputStream stream) throws IOException {
+    private List<String> setRegistriesList(InputStream stream) throws IOException {
 
         final InputStreamReader reader = new InputStreamReader(stream);
         final BufferedReader bufferedReader = new BufferedReader(reader);

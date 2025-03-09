@@ -28,55 +28,6 @@ import java.util.Map;
 public interface DownloaderClient {
 
     /**
-     * Restituisce l'endpoint al quale viene indirizzata ogni richiesta per le anagrafiche
-     *
-     * @return URL completo dell'endpoint SOAP
-     */
-    String getEndpointSoap();
-
-    /**
-     * Imposta l'host remoto al quale verranno richieste le anagrafiche.<br>
-     * Se questo metodo non viene richiamato l'host è impostato a un valore di default.
-     *
-     * @param endpoint Stringa contenente l'intero URL dell'endpoint SOAP<br>
-     *                 E.g.:<br>
-     *                 <code>client.setRemoteHost("https://nsis.sanita.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"); // Esercizio URL esterna</code><br>
-     *                 <code>client.setRemoteHost("https://cooperazionecoll.salute.gov.it/WSHUBPA/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL pubblica</code><br>
-     *                 <code>client.setRemoteHost("http://10.175.6.34:8130/interop_new/services/DownloaderAnagrafiche"; // Collaudo URL interna</code><br>
-     */
-    void setEndpointSoap(String endpoint);
-
-    /**
-     * Restituisce la username WSSE (Web Services Security)
-     *
-     * @return Stringa con la username
-     */
-    String getWsseUsername();
-
-    /**
-     * Imposta la username WSSE (Web Services Security)
-     *
-     * @param wsseUsername Stringa con la username
-     */
-    void setWsseUsername(String wsseUsername);
-
-    /**
-     * Restituisce la password WSSE (Web Services Security)
-     *
-     * @return Stringa con la password, in chiaro
-     */
-    String getWssePassword();
-
-    /**
-     * Imposta la password WSSE (Web Services Security)
-     *
-     * @param wssePassword Stringa con la password, in chiaro
-     */
-    void setWssePassword(String wssePassword);
-
-
-
-    /**
      * Restituisce la lista dei nomi di tutte le anagrafiche.
      *
      * @return Una lista di nomi di anagrafiche.

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,11 +78,11 @@ class DownloaderClientImplementationTest {
             "    ]\n" +
             "}\n";
 
-    private DownloaderClient client;
+    private DownloaderClientImplementation client;
 
     @BeforeEach
     void setUp() throws Exception {
-        this.client = DownloaderClientImplementation.instance();
+        this.client = new DownloaderClientImplementation(new Properties());
     }
 
     @Test
@@ -128,7 +129,7 @@ class DownloaderClientImplementationTest {
     @Test
     void testSetEndpointSoap() {
 
-        client = DownloaderClientImplementation.instance();
+
         assertNotNull(client);
 
         String initVal = "http://localhost:8080/DownloaderAnagrafiche";
@@ -142,7 +143,7 @@ class DownloaderClientImplementationTest {
     @Test
     void testSetWsseUsername() {
 
-        client = DownloaderClientImplementation.instance();
+
         assertNotNull(client);
 
         String initVal = "userName";
@@ -155,7 +156,7 @@ class DownloaderClientImplementationTest {
     @Test
     void testSetWssePassword() {
 
-        client = DownloaderClientImplementation.instance();
+
         assertNotNull(client);
 
         String initVal = "password";
