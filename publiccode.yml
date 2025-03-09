@@ -3,7 +3,7 @@ name: sdk-lib-downloader-anagrafiche-client
 applicationSuite: SDK
 url: https://github.com/ministero-salute/sdk-lib-downloader-anagrafiche-client
 landingURL: https://github.com/ministero-salute/sdk-lib-downloader-anagrafiche-client
-softwareVersion: 1.0.0-SNAPSHOT
+softwareVersion: 0.0.2-SNAPSHOT
 releaseDate: 2025-03-09
 platforms:
   - windows
