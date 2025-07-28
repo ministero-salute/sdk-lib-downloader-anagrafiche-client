@@ -9,7 +9,6 @@
   <version>0.0.2-SNAPSHOT</version>
 
   <name>downloader-anagrafiche-client</name>
-  <url>https://gitlabdev-mds.dev.zoe/progetto_sdk/gestore_anagrafi/downloader-anagrafiche-client</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
